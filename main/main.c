@@ -50,7 +50,12 @@
 #include <test.h>
 #include <version.h>
 #include "autoconf.h"  // for pseudoconfig
+#include "opt-lab.h"
 
+
+#ifdef OPT_LAB
+	void lab(void);
+#endif
 
 /*
  * These two pieces of data are maintained by the makefiles and build system.
@@ -210,6 +215,9 @@ kmain(char *arguments)
 {
 	boot();
 
+	#if OPT_LAB
+		lab();
+	#endif
 	menu(arguments);
 
 	/* Should not get here */

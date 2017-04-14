@@ -384,6 +384,9 @@ file      syscall/time_syscalls.c
 file      main/main.c
 file      main/menu.c
 
+defoption lab
+optfile	  lab main/lab.c
+
 ########################################
 #                                      #
 #             Filesystems              #
