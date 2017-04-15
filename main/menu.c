@@ -43,6 +43,7 @@
 #include <test.h>
 #include "opt-sfs.h"
 #include "opt-net.h"
+#include <synch.h>
 
 /*
  * In-kernel menu and command dispatcher.
@@ -114,6 +115,7 @@ common_prog(int nargs, char **args)
 {
 	struct proc *proc;
 	int result;
+	struct semaphore *sem;
 
 	/* Create a process for the new program to run in. */
 	proc = proc_create_runprogram(args[0] /* name */);
@@ -121,15 +123,31 @@ common_prog(int nargs, char **args)
 		return ENOMEM;
 	}
 
-	result = thread_fork(args[0] /* thread name */,
-			proc /* new process */,
-			cmd_progthread /* thread function */,
-			args /* thread arg */, nargs /* thread arg */);
+	sem = sem_create("thread_sem", 0);
+
+	/*
+	result = thread_fork(args[0] // thread name ,
+			proc // new process ,
+			cmd_progthread // thread function ,
+			args // thread arg ,
+			nargs // thread arg );
+	*/
+
+	result = thread_fork_sem(args[0],
+			proc,
+			cmd_progthread,
+			args,
+			nargs,
+			sem);
+
 	if (result) {
 		kprintf("thread_fork failed: %s\n", strerror(result));
 		proc_destroy(proc);
 		return result;
 	}
+
+	P(sem);
+	sem_destroy(sem);
 
 	/*
 	 * The new process will be destroyed when the program exits...

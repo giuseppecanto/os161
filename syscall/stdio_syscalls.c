@@ -37,6 +37,8 @@
 #include <vfs.h>
 #include <current.h>
 
+#define BUFF_SIZE 31
+
 int sys_write(userptr_t buffer, int nBytes, int *retval) {
 
 	// Define variables
@@ -52,4 +54,37 @@ int sys_write(userptr_t buffer, int nBytes, int *retval) {
 	// Return the function
   	return 0;
 	
+}
+
+/*
+* ASSUMPTION: nbytes = 1, always
+*
+*/
+int sys_read(userptr_t buffer, int nbyte, int *retval) {
+
+	// Defining variables
+	static char myBuffer[BUFF_SIZE];
+  	static int i=-1;
+  	char *bufferX;
+  
+  	if ( !(i == -1) && !(myBuffer[i] == '\0') ) {
+    		
+		// Fill the buffer from stdin
+    		kgets(myBuffer, BUFF_SIZE);
+
+		// Zeroing
+		i = -1;
+  	}
+  
+	// Copy myBuffer to buffer (using bufferX as cast of buffer)
+  	i += 1;
+  	bufferX = (char*) buffer;  	
+	bufferX[0] = myBuffer[i];
+
+	// Return the number of written chars by reference
+ 	*retval = nbyte;
+
+	// Return the function
+  	return 0;
+
 }

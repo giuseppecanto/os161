@@ -492,14 +492,28 @@ int
 thread_fork(const char *name,
 	    struct proc *proc,
 	    void (*entrypoint)(void *data1, unsigned long data2),
-	    void *data1, unsigned long data2)
-{
+	    void *data1, unsigned long data2) { 
+
+	return thread_fork_sem(name, proc, entrypoint, data1, data2, NULL);
+
+}
+
+int
+thread_fork_sem(const char*name,
+	struct proc *proc,
+	void (*entrypoint)(void *data1, unsigned long data2),
+	void *data1, unsigned long data2, struct semaphore *sem){
+
 	struct thread *newthread;
 	int result;
 
 	newthread = thread_create(name);
 	if (newthread == NULL) {
 		return ENOMEM;
+	}
+
+	if (sem != NULL){
+		newthread->sem = sem;
 	}
 
 	/* Allocate a stack */
@@ -790,6 +804,9 @@ thread_exit(void)
 
 	/* Check the stack guard band. */
 	thread_checkstack(cur);
+
+	// Release the spinlock
+	V(cur->sem);
 
 	/* Interrupts off on this processor */
         splhigh();

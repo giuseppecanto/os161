@@ -106,6 +106,7 @@ struct thread {
 	 */
 
 	/* add more here as needed */
+	struct semaphore *sem;
 };
 
 /*
@@ -143,6 +144,13 @@ void thread_shutdown(void);
 int thread_fork(const char *name, struct proc *proc,
                 void (*func)(void *, unsigned long),
                 void *data1, unsigned long data2);
+
+int thread_fork_sem(const char *,
+		struct proc *,
+		void (*func)(void*, unsigned long),
+		void *data1,
+		unsigned long,
+		struct semaphore *);
 
 /*
  * Cause the current thread to exit.
